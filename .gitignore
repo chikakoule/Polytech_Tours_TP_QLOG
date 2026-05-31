@@ -1,0 +1,34 @@
+# ─── Documents de référence CONFIDENTIELS — NE JAMAIS COMMITTER ───
+specs-fonctionnelles.html
+bugs-intentionnels.html
+cahier-des-charges-tp.html
+
+# ─── Python / Backend ───
+backend/venv/
+backend/.venv/
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+backend/.env
+*.db
+*.sqlite
+*.sqlite3
+backend/uploads/
+
+# ─── Node / Frontend ───
+node_modules/
+frontend/dist/
+frontend/.env
+frontend/cypress/videos/
+frontend/cypress/screenshots/
+frontend/cypress/downloads/
+
+# ─── Divers ───
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
