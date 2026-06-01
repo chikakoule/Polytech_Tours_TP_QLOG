@@ -27,10 +27,6 @@ function formatDateTime(ev) {
 async function load() {
   loading.value = true
   const params = {}
-  // BUG-F5 (sain) : pour un joueur sans "voir tout", on transmet my_matches=true.
-  if (!auth.isAdmin && !showAll.value) {
-    params.my_matches = true
-  }
   if (statusFilter.value) {
     params.status = statusFilter.value
   }
@@ -85,10 +81,9 @@ onMounted(load)
           <div>
             <p class="text-sm text-gray-500">{{ formatDateTime(m.event) }} · Piste {{ m.court_number }}</p>
             <p class="mt-1 font-semibold">
-              <!-- Interpolation = échappement automatique (protection XSS). -->
-              <span data-cy="team1-company">{{ m.team1.company }}</span>
+              <span data-cy="team1-company" v-html="m.team1.company"></span>
               <span class="mx-2 text-gray-400">vs</span>
-              <span data-cy="team2-company">{{ m.team2.company }}</span>
+              <span data-cy="team2-company" v-html="m.team2.company"></span>
             </p>
             <p class="text-sm text-gray-600">{{ playersOf(m.team1) }} — {{ playersOf(m.team2) }}</p>
           </div>

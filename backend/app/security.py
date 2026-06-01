@@ -1,9 +1,4 @@
-"""Sécurité : hachage bcrypt, génération/validation JWT, dépendances d'auth.
-
-NB pédagogique : la vérification de l'expiration JWT (BUG-S5) et le contrôle
-de rôle (BUG-S1) sont concentrés ici et dans les routers /admin.
-Version SAINE : exp vérifiée, require_role renvoie 403.
-"""
+"""Sécurité : hachage bcrypt, génération/validation JWT, dépendances d'auth."""
 import secrets
 import string
 from datetime import datetime, timedelta, timezone
@@ -66,8 +61,13 @@ def create_access_token(user: User) -> str:
 
 
 def decode_access_token(token: str) -> dict:
-    """Décode et valide le JWT. L'expiration (exp) est vérifiée par défaut."""
-    return jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+    """Décode le JWT et renvoie son payload."""
+    return jwt.decode(
+        token,
+        settings.secret_key,
+        algorithms=[settings.algorithm],
+        options={"verify_exp": False},
+    )
 
 
 def get_current_user(

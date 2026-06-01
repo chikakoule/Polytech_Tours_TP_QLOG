@@ -201,7 +201,7 @@ onMounted(loadAll)
           <thead class="text-left text-gray-500"><tr><th class="py-2">Entreprise</th><th>Joueurs</th><th>Poule</th><th></th></tr></thead>
           <tbody>
             <tr v-for="t in teams" :key="t.id" class="border-t border-gray-100">
-              <td class="py-2">{{ t.company }}</td>
+              <td class="py-2" v-html="t.company"></td>
               <td>{{ t.players.map((p) => p.first_name + ' ' + p.last_name).join(' & ') }}</td>
               <td>{{ t.pool ? t.pool.name : '—' }}</td>
               <td class="text-right"><button class="text-red-600 hover:underline" @click="deleteTeam(t.id)">Supprimer</button></td>

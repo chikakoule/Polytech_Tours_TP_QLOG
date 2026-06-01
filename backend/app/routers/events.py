@@ -1,8 +1,4 @@
-"""Endpoints événements (§3.3.6).
-
-NB pédagogique : la revérification serveur de la date (BUG-F2) est dans
-create_event. Version SAINE : date >= aujourd'hui sinon 400.
-"""
+"""Endpoints événements (§3.3.6)."""
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -91,12 +87,6 @@ def create_event(
     _: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
-    # BUG-F2 (sain) : on ne fait jamais confiance au client → on revérifie la date.
-    if payload.event_date < date.today():
-        raise HTTPException(
-            status_code=400,
-            detail="La date doit être postérieure ou égale à aujourd'hui",
-        )
     _validate_matches(db, payload.matches)
 
     event = Event(event_date=payload.event_date, event_time=payload.event_time)

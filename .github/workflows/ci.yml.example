@@ -1,0 +1,75 @@
+# ───────────────────────────────────────────────────────────────────────────
+# AMORCE DE PIPELINE CI/CD — À COMPLÉTER PAR VOUS (Phase 4 du TP)
+#
+# Ce fichier est un EXEMPLE commenté : il n'est PAS exécuté tel quel.
+# Pour l'activer, créez votre propre fichier `.github/workflows/ci.yml`
+# (sans le suffixe .example) et adaptez les étapes ci-dessous.
+#
+# Objectif : à chaque push et pull request, installer les dépendances, lancer
+# le lint, les tests back-end (pytest) et les tests E2E (Cypress headless),
+# et faire échouer la pipeline si un test échoue (porte de qualité).
+# ───────────────────────────────────────────────────────────────────────────
+
+# name: CI
+#
+# on:
+#   push:
+#   pull_request:
+#
+# jobs:
+#   backend:
+#     runs-on: ubuntu-latest
+#     defaults:
+#       run:
+#         working-directory: backend
+#     steps:
+#       - uses: actions/checkout@v4
+#       - uses: actions/setup-python@v5
+#         with:
+#           python-version: "3.11"
+#       - name: Installer les dépendances
+#         run: |
+#           python -m pip install --upgrade pip
+#           pip install -r requirements.txt
+#       - name: Lint (flake8)
+#         run: flake8 app/
+#       - name: Tests pytest + couverture
+#         run: pytest --cov=app --cov-report=term-missing
+#       # Approfondissement : faire échouer si la couverture < seuil
+#       # run: pytest --cov=app --cov-fail-under=70
+#
+#   e2e:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
+#       - uses: actions/setup-python@v5
+#         with:
+#           python-version: "3.11"
+#       - uses: actions/setup-node@v4
+#         with:
+#           node-version: "20"
+#       - name: Démarrer le backend
+#         working-directory: backend
+#         run: |
+#           python -m pip install --upgrade pip
+#           pip install -r requirements.txt
+#           python seed.py
+#           nohup uvicorn app.main:app --port 8000 &
+#       - name: Installer le frontend
+#         working-directory: frontend
+#         run: npm ci
+#       - name: Lint (ESLint)
+#         working-directory: frontend
+#         run: npm run lint
+#       - name: Tests Cypress (headless)
+#         working-directory: frontend
+#         run: |
+#           npm run dev &
+#           npx wait-on http://localhost:5173
+#           npx cypress run
+#
+# # Pistes d'approfondissement (4A attendu / 5A bonus) :
+# #   - quality gate chiffré (couverture minimale)
+# #   - badge de build dans le README
+# #   - branches protégées (PR validée par la CI avant merge sur main)
+# #   - déploiement continu du frontend sur merge vers main

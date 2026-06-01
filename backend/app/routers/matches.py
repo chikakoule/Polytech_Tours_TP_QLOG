@@ -1,12 +1,4 @@
-"""Endpoints matchs (§3.3.7).
-
-NB pédagogique :
-  - BUG-F1 : validation du score (validate_score) à la mise à jour.
-  - BUG-F3 : détection de conflit de piste (même date+heure+piste) à la création.
-  - BUG-F4 : suppression réservée aux matchs A_VENIR.
-  - BUG-F5 : le filtre `my_matches` est supporté côté serveur.
-Version SAINE : toutes ces règles sont appliquées.
-"""
+"""Endpoints matchs (§3.3.7)."""
 from datetime import date, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -112,13 +104,6 @@ def create_match(
         if db.query(Team).filter(Team.id == tid).first() is None:
             raise HTTPException(status_code=404, detail="Équipe introuvable")
 
-    # BUG-F3 (sain) : une piste ne peut accueillir qu'un match par créneau.
-    if _court_conflict(db, payload.event_date, payload.event_time, payload.court_number):
-        raise HTTPException(
-            status_code=409,
-            detail=f"La piste {payload.court_number} est déjà occupée à ce créneau",
-        )
-
     event = _get_or_create_event(db, payload.event_date, payload.event_time)
     match = Match(
         event_id=event.id,
@@ -170,7 +155,6 @@ def update_match(
             raise HTTPException(
                 status_code=400, detail="Un match terminé doit comporter les deux scores"
             )
-        # BUG-F1 (sain) : validation de la logique tennistique du score.
         if not validate_score(score1) or not validate_score(score2):
             raise HTTPException(
                 status_code=400, detail="Format de score invalide (ex: 6-4, 6-3)"
@@ -200,12 +184,6 @@ def delete_match(
     match = db.query(Match).filter(Match.id == match_id).first()
     if match is None:
         raise HTTPException(status_code=404, detail="Match introuvable")
-    # BUG-F4 (sain) : seuls les matchs A_VENIR sont supprimables.
-    if match.status != "A_VENIR":
-        raise HTTPException(
-            status_code=409,
-            detail="Suppression impossible : seul un match A_VENIR peut être supprimé",
-        )
     db.delete(match)
     db.commit()
     return None

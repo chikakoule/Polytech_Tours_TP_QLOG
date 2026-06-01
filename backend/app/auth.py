@@ -1,8 +1,4 @@
-"""Logique d'authentification et protection anti-brute force (§2.1.3 / §4.2.4).
-
-NB pédagogique : seuil de blocage (BUG-S3) et message générique (BUG-S4) sont
-ici. Version SAINE : blocage à >= 5 échecs, message identique quel que soit le cas.
-"""
+"""Logique d'authentification et protection anti-brute force (§2.1.3 / §4.2.4)."""
 from datetime import datetime, timedelta, timezone
 
 from fastapi import HTTPException, status
@@ -11,8 +7,6 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.models import LoginAttempt, User
 from app.security import create_access_token, verify_password
-
-GENERIC_ERROR = "Email ou mot de passe incorrect"
 
 
 def _now() -> datetime:
@@ -65,13 +59,20 @@ def authenticate(db: Session, email: str, password: str) -> dict:
             attempt.locked_until = None
 
     user = db.query(User).filter(User.email == email).first()
-    credentials_ok = user is not None and verify_password(password, user.password_hash)
+    if user is None:
+        error_message = "Utilisateur inconnu"
+        credentials_ok = False
+    elif not verify_password(password, user.password_hash):
+        error_message = "Mot de passe incorrect"
+        credentials_ok = False
+    else:
+        credentials_ok = True
 
     if not credentials_ok:
         attempt.attempts_count += 1
         attempt.last_attempt = _now()
 
-        if attempt.attempts_count >= settings.max_login_attempts:
+        if attempt.attempts_count > settings.max_login_attempts:
             attempt.locked_until = _now() + timedelta(minutes=settings.lockout_minutes)
             db.commit()
             raise HTTPException(
@@ -87,7 +88,7 @@ def authenticate(db: Session, email: str, password: str) -> dict:
         db.commit()
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"detail": GENERIC_ERROR, "attempts_remaining": remaining},
+            detail={"detail": error_message, "attempts_remaining": remaining},
         )
 
     # Succès : réinitialisation du compteur.

@@ -1,5 +1,4 @@
 """Endpoints équipes (§3.3.4)."""
-import bleach
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
@@ -10,10 +9,6 @@ from app.security import get_current_user, require_admin
 from app.services.serializers import team_out
 
 router = APIRouter(prefix="/teams", tags=["teams"])
-
-
-def _clean(value: str) -> str:
-    return bleach.clean(value, tags=[], strip=True)
 
 
 def _team_has_played(db: Session, team_id: int) -> bool:
@@ -80,7 +75,7 @@ def create_team(
 ):
     _validate_players(db, payload)
     team = Team(
-        company=_clean(payload.company),
+        company=payload.company,
         player1_id=payload.player1_id,
         player2_id=payload.player2_id,
         pool_id=payload.pool_id,
@@ -108,7 +103,7 @@ def update_team(
         )
     _validate_players(db, payload, exclude_team=team_id)
     if payload.company is not None:
-        team.company = _clean(payload.company)
+        team.company = payload.company
     team.player1_id = payload.player1_id
     team.player2_id = payload.player2_id
     team.pool_id = payload.pool_id
