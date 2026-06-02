@@ -1,8 +1,10 @@
 """Point d'entrée FastAPI — Corpo Padel API."""
 import os
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
@@ -34,6 +36,73 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+_FIELD_LABELS = {
+    "first_name": "Prénom",
+    "last_name": "Nom",
+    "company": "Entreprise",
+    "license_number": "N° de licence",
+    "email": "Email",
+    "birth_date": "Date de naissance",
+    "event_date": "Date",
+    "event_time": "Heure",
+    "court_number": "Numéro de piste",
+    "team1_id": "Équipe 1",
+    "team2_id": "Équipe 2",
+    "name": "Nom de la poule",
+    "team_ids": "Équipes",
+    "current_password": "Mot de passe actuel",
+    "new_password": "Nouveau mot de passe",
+    "confirm_password": "Confirmation du mot de passe",
+}
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Transforme les erreurs Pydantic (422) en message clair et lisible.
+
+    Conserve le code 422 et expose le détail brut sous `errors` pour le
+    débogage, mais fournit un `detail` en français exploitable côté IHM.
+    """
+    messages: list[str] = []
+    empty_fields: list[str] = []
+    for err in exc.errors():
+        loc = [p for p in err.get("loc", []) if p != "body"]
+        field = loc[-1] if loc else ""
+        label = _FIELD_LABELS.get(field, field)
+        raw = err.get("msg", "Valeur invalide")
+        # "Value error, <message>" -> "<message>"
+        clean = raw.split("Value error, ", 1)[-1]
+        if err.get("input") in ("", None) and err.get("type") in (
+            "missing",
+            "value_error",
+            "string_too_short",
+        ):
+            empty_fields.append(label)
+        else:
+            messages.append(f"{label} : {clean}" if label else clean)
+
+    if empty_fields and not messages:
+        if len(empty_fields) >= 3:
+            detail = "Aucun champ n'est renseigné, veuillez vérifier les valeurs avant de valider."
+        else:
+            detail = "Champ(s) obligatoire(s) manquant(s) : " + ", ".join(empty_fields) + "."
+    else:
+        for f in empty_fields:
+            messages.insert(0, f"{f} : champ obligatoire")
+        detail = " · ".join(messages) if messages else "Données invalides."
+
+    # Nettoie les erreurs pour garantir un corps JSON sérialisable
+    # (le ctx Pydantic peut contenir un objet exception non sérialisable).
+    safe_errors = [
+        {k: v for k, v in err.items() if k in ("type", "loc", "msg", "input")}
+        for err in exc.errors()
+    ]
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": detail, "errors": safe_errors},
+    )
 
 
 @app.middleware("http")

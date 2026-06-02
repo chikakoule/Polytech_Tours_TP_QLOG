@@ -29,21 +29,40 @@ const auth = useAuthStore()
     </div>
 
     <div class="grid gap-4 sm:grid-cols-3">
-      <div class="card text-left">
+      <component
+        :is="auth.isAuthenticated ? 'router-link' : 'div'"
+        :to="auth.isAuthenticated ? '/planning' : undefined"
+        class="card text-left transition"
+        :class="auth.isAuthenticated ? 'cursor-pointer hover:shadow-md hover:border-padel-600' : ''"
+      >
         <div class="text-2xl">📅</div>
         <h3 class="mt-2 font-semibold">Planning</h3>
         <p class="mt-1 text-sm text-gray-600">Tous les événements de la saison dans un calendrier.</p>
-      </div>
-      <div class="card text-left">
+      </component>
+      <component
+        :is="auth.isAuthenticated ? 'router-link' : 'div'"
+        :to="auth.isAuthenticated ? '/matches' : undefined"
+        class="card text-left transition"
+        :class="auth.isAuthenticated ? 'cursor-pointer hover:shadow-md hover:border-padel-600' : ''"
+      >
         <div class="text-2xl">⚽</div>
         <h3 class="mt-2 font-semibold">Matchs</h3>
         <p class="mt-1 text-sm text-gray-600">Vos prochains matchs et ceux de toutes les équipes.</p>
-      </div>
-      <div class="card text-left">
+      </component>
+      <component
+        :is="auth.isAuthenticated ? 'router-link' : 'div'"
+        :to="auth.isAuthenticated ? '/results' : undefined"
+        class="card text-left transition"
+        :class="auth.isAuthenticated ? 'cursor-pointer hover:shadow-md hover:border-padel-600' : ''"
+      >
         <div class="text-2xl">📊</div>
         <h3 class="mt-2 font-semibold">Classement</h3>
         <p class="mt-1 text-sm text-gray-600">Le classement général des entreprises en temps réel.</p>
-      </div>
+      </component>
     </div>
+
+    <p v-if="!auth.isAuthenticated" class="mt-4 text-sm text-gray-500">
+      Connectez-vous pour accéder au planning, aux matchs et au classement.
+    </p>
   </div>
 </template>
