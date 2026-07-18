@@ -209,6 +209,73 @@ npx cypress run       # mode headless (pour la CI)
 
 ---
 
+## ⚙️ Votre pipeline CI/CD (sur votre fork)
+
+Chaque groupe travaille sur **son propre fork** : votre pipeline s'exécute donc
+sur **votre** dépôt, avec vos propres minutes GitHub Actions, indépendamment des
+autres groupes et du dépôt d'origine.
+
+### Étape 1 — Activer GitHub Actions ⚠️
+
+**À faire une seule fois, sinon rien ne se déclenchera.** GitHub désactive les
+workflows par défaut sur un fork :
+
+1. Sur votre fork, ouvrez l'onglet **Actions**
+2. Cliquez sur **« I understand my workflows, go ahead and enable them »**
+
+### Étape 2 — Créer votre workflow
+
+Le projet fournit une **amorce commentée**, volontairement inactive :
+`.github/workflows/ci.yml.example`. L'extension `.example` fait que GitHub
+l'ignore — c'est à vous de construire la vraie pipeline.
+
+```bash
+# Depuis la racine du projet
+cp .github/workflows/ci.yml.example .github/workflows/ci.yml   # macOS / Linux
+copy .github\workflows\ci.yml.example .github\workflows\ci.yml # Windows
+```
+
+Ouvrez ensuite `ci.yml` et **décommentez / adaptez** les étapes : installation
+des dépendances → lint → tests pytest → tests Cypress headless.
+
+> 💡 Lisez les commentaires en tête du fichier : ils signalent les pièges
+> classiques (un step en échec arrête le job, `wait-on` avant Cypress…).
+
+### Étape 3 — Déclencher et vérifier
+
+```bash
+git add .github/workflows/ci.yml
+git commit -m "ci: ajout de la pipeline d'intégration continue"
+git push
+```
+
+Retournez dans l'onglet **Actions** de votre fork : l'exécution doit apparaître.
+Un job en échec (❌) est normal au début — c'est la **porte de qualité** qui
+joue son rôle.
+
+### Étape 4 — Ajouter le badge de build au README
+
+Remplacez `VOTRE-COMPTE` par le compte qui héberge le fork, et `ci.yml` par le
+nom de votre fichier de workflow :
+
+```markdown
+![CI](https://github.com/VOTRE-COMPTE/Polytech_Tours_TP_QLOG/actions/workflows/ci.yml/badge.svg)
+```
+
+> ⚠️ Le badge doit pointer vers **votre fork**, pas vers le dépôt d'origine —
+> sinon il affichera l'état d'un dépôt qui n'est pas le vôtre.
+
+### Bon à savoir
+
+| Point | Détail |
+|-------|--------|
+| **Coût** | Gratuit et illimité sur un dépôt **public**. En privé : 2 000 min/mois (large pour un TP). |
+| **Isolation** | Vos exécutions n'affectent ni les autres groupes ni le dépôt d'origine. |
+| **Rendu** | C'est l'URL de **votre fork** que vous communiquez à l'enseignant : la pipeline y est visible et évaluable. |
+| **Secrets** | Si votre pipeline en nécessite : **Settings → Secrets and variables → Actions** (sur votre fork). |
+
+---
+
 ## 📂 Structure du projet
 
 ```
