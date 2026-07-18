@@ -134,7 +134,6 @@ def compute_my_results(db: Session, player: Player) -> dict:
         )
         for m in matches:
             is_team1 = m.team1_id in team_ids
-            my_team = m.team1 if is_team1 else m.team2
             opp_team = m.team2 if is_team1 else m.team1
             my_score = m.score_team1 if is_team1 else m.score_team2
             t1_sets, t2_sets = sets_won_by_team1(m.score_team1)

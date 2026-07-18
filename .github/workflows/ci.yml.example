@@ -8,6 +8,18 @@
 # Objectif : à chaque push et pull request, installer les dépendances, lancer
 # le lint, les tests back-end (pytest) et les tests E2E (Cypress headless),
 # et faire échouer la pipeline si un test échoue (porte de qualité).
+#
+# ── Points d'attention (pièges classiques) ────────────────────────────────
+# 1. Un step qui échoue ARRÊTE le job : si le lint est placé avant les tests
+#    et qu'il échoue, les tests ne s'exécuteront jamais. Si vous voulez que
+#    les tests tournent malgré un lint rouge, séparez-les en deux jobs, ou
+#    utilisez `continue-on-error: true` sur le step de lint.
+# 2. Lint et tests sont INDÉPENDANTS : flake8 n'a aucun effet sur pytest.
+#    Si pytest « ne passe pas » en CI, vérifiez d'abord quel step a échoué.
+# 3. Ne lintez jamais les artefacts de build (frontend/dist) ni node_modules :
+#    voir frontend/.eslintignore.
+# 4. Cypress a besoin que le backend ET le frontend soient démarrés ET
+#    joignables : utilisez `wait-on` avant de lancer les tests.
 # ───────────────────────────────────────────────────────────────────────────
 
 # name: CI
@@ -65,7 +77,9 @@
 #         working-directory: frontend
 #         run: |
 #           npm run dev &
-#           npx wait-on http://localhost:5173
+#           # Attendre que le frontend ET le backend répondent avant de lancer
+#           # Cypress (sinon les tests échouent aléatoirement au démarrage).
+#           npx wait-on http://localhost:5173 http://localhost:8000/api/v1/health
 #           npx cypress run
 #
 # # Pistes d'approfondissement (4A attendu / 5A bonus) :

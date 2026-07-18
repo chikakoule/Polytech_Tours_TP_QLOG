@@ -1,0 +1,9 @@
+# Artefacts de build et dépendances : jamais lintés.
+dist
+node_modules
+coverage
+
+# Artefacts Cypress
+cypress/videos
+cypress/screenshots
+cypress/downloads

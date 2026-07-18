@@ -1,6 +1,4 @@
 """Endpoints joueurs (§3.3.3)."""
-import re
-
 import bleach
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session

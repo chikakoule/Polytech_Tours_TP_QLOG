@@ -15,7 +15,13 @@ from app.validators import validate_score
 router = APIRouter(prefix="/matches", tags=["matches"])
 
 
-def _court_conflict(db: Session, event_date: date, event_time: str, court: int, exclude_match: int | None = None) -> bool:
+def _court_conflict(
+    db: Session,
+    event_date: date,
+    event_time: str,
+    court: int,
+    exclude_match: int | None = None,
+) -> bool:
     """Vrai si la piste est déjà occupée à ce créneau (date + heure)."""
     q = (
         db.query(Match)

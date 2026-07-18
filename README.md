@@ -201,6 +201,16 @@ corpo-padel/
 | Erreurs CORS | Vérifiez `ALLOWED_ORIGINS` dans `backend/.env` (par défaut `http://localhost:5173`). |
 | Repartir d'une base propre | Relancez `python seed.py` depuis `backend/`. |
 
+### Lint & CI
+
+| Problème | Solution |
+|----------|----------|
+| `npm run lint` remonte des centaines d'erreurs | Vérifiez que `frontend/.eslintignore` existe : sans lui, ESLint analyse `dist/` (code minifié) et génère un bruit énorme. Ne lintez jamais les artefacts de build. |
+| `'cy' is not defined` / `'describe' is not defined` | Les globales Cypress ne sont définies que dans les tests E2E. La config `.eslintrc.cjs` les active via `overrides` sur `cypress/**` et `*.cy.js`. |
+| « pytest ne passe pas en CI » | Vérifiez **quel step** a échoué : lint et tests sont indépendants (flake8 n'influence pas pytest). Un step en échec arrête le job — si le lint précède les tests, ceux-ci ne s'exécutent jamais. |
+| `flake8: command not found` | `flake8` est dans `requirements.txt` : faites `pip install -r requirements.txt`. La config (longueur de ligne) est dans `backend/setup.cfg`. |
+| Cypress échoue au démarrage en CI | Le backend et le frontend doivent être démarrés **et** joignables : utilisez `npx wait-on` sur les deux URL avant `cypress run`. |
+
 ---
 
 ## 📚 Ressources

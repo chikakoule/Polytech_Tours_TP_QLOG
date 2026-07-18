@@ -7,4 +7,13 @@ module.exports = {
     'vue/multi-word-component-names': 'off',
     'vue/no-v-html': 'warn',
   },
+  overrides: [
+    {
+      // Les globales Cypress (cy, describe, it…) n'existent QUE dans les tests
+      // E2E : on limite la config Cypress à ces fichiers plutôt que de
+      // l'appliquer à tout le frontend.
+      files: ['cypress/**/*.js', '**/*.cy.js'],
+      extends: ['plugin:cypress/recommended'],
+    },
+  ],
 }

@@ -30,7 +30,9 @@ def _player_in_other_team(db: Session, player_id: int, exclude_team: int | None)
     return q.first() is not None
 
 
-def _validate_players(db: Session, payload, exclude_team: int | None = None) -> tuple[Player, Player]:
+def _validate_players(
+    db: Session, payload, exclude_team: int | None = None
+) -> tuple[Player, Player]:
     if payload.player1_id == payload.player2_id:
         raise HTTPException(status_code=400, detail="Les deux joueurs doivent être distincts")
     p1 = db.query(Player).filter(Player.id == payload.player1_id).first()
