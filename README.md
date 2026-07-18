@@ -19,13 +19,22 @@ Installez ces outils avant de commencer (toutes plateformes) :
 
 | Outil | Version minimale | Vérifier avec |
 |-------|------------------|---------------|
-| **Python** | 3.11+ | `python --version` |
+| **Python** | 3.11, 3.12 ou 3.13 — ⚠️ **pas 3.14** | `python --version` |
 | **Node.js** | 18+ | `node --version` |
 | **npm** | 9+ | `npm --version` |
 | **Git** | — | `git --version` |
 
 > 💡 **Windows** : à l'installation de Python, cochez **« Add Python to PATH »**.
 > Selon votre système, la commande peut être `python` ou `python3`, et `pip` ou `pip3`.
+
+> ⚠️ **Python 3.14 n'est pas supporté.** Les dépendances épinglées (notamment
+> `bcrypt` et `pydantic-core`) n'ont pas encore de paquets pré-compilés pour
+> 3.14 : `pip install` tenterait de les compiler depuis les sources et
+> échouerait. Utilisez **Python 3.11, 3.12 ou 3.13**.
+>
+> Si vous avez plusieurs versions installées, ciblez-en une explicitement :
+> - **Windows** : `py -3.12 -m venv venv`
+> - **macOS / Linux** : `python3.12 -m venv venv`
 
 ---
 
@@ -195,6 +204,7 @@ corpo-padel/
 
 | Problème | Solution |
 |----------|----------|
+| `pip install` échoue (erreur de compilation, `Rust`, `maturin`, `error: could not build wheels`) | Vous êtes probablement en **Python 3.14**, non supporté. Recréez le venv avec 3.11/3.12/3.13 : `py -3.12 -m venv venv` (Windows) ou `python3.12 -m venv venv`. |
 | `uvicorn: command not found` | L'environnement virtuel n'est pas activé. Réactivez-le (voir Installation). |
 | Port 8000 ou 5173 déjà utilisé | Fermez l'autre processus, ou changez le port (`--port`, `npm run dev -- --port 5174`). |
 | Le frontend n'atteint pas l'API | Vérifiez que le backend tourne et que `frontend/.env` contient `VITE_API_BASE_URL=http://localhost:8000/api/v1`. |
