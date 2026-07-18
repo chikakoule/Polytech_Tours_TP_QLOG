@@ -29,7 +29,7 @@ async function submit() {
     if (detail && typeof detail === 'object') {
       error.value = detail.detail || 'Erreur de connexion'
       if (typeof detail.attempts_remaining === 'number') {
-        attemptsRemaining.value = detail.attempts_remaining
+        attemptsRemaining.value = detail.attempts_remaining + 1
       }
       if (typeof detail.minutes_remaining === 'number') {
         error.value = `Compte bloqué. Réessayez dans ${detail.minutes_remaining} minute(s).`

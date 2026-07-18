@@ -60,7 +60,9 @@ onMounted(load)
       <div v-else class="space-y-2">
         <div v-for="r in myResults.results" :key="r.match_id" class="card flex items-center justify-between">
           <div>
-            <p class="text-sm text-gray-500">{{ r.date }} · Piste {{ r.court_number }}</p>
+            <p class="text-sm text-gray-500">
+              <span data-cy="result-date">{{ r.date }}</span> · Piste {{ r.court_number }}
+            </p>
             <p class="font-medium">vs {{ r.opponents.company }}</p>
             <p class="text-sm text-gray-600">{{ r.opponents.players.join(' & ') }}</p>
           </div>

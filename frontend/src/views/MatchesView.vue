@@ -15,7 +15,7 @@ const notice = ref('')
 const showAll = ref(auth.isAdmin)
 const statusFilter = ref('')
 
-const dateFmt = new Intl.DateTimeFormat('fr-FR', {
+const dateFmt = new Intl.DateTimeFormat('en-US', {
   weekday: 'long',
   day: 'numeric',
   month: 'long',
@@ -63,9 +63,8 @@ async function loadTeams() {
 const playersOf = (team) => team.players.map((p) => `${p.first_name} ${p.last_name}`).join(' & ')
 
 const statusBadge = (status) => {
-  if (status === 'A_VENIR') return { label: 'À venir', cls: 'bg-blue-100 text-blue-700' }
-  if (status === 'ANNULE') return { label: 'Annulé', cls: 'bg-red-100 text-red-700' }
-  return { label: 'Terminé', cls: 'bg-green-100 text-green-700' }
+  if (status === 'TERMINE') return { label: 'Terminé', cls: 'bg-green-100 text-green-700' }
+  return { label: 'À venir', cls: 'bg-blue-100 text-blue-700' }
 }
 
 const visibleMatches = computed(() => matches.value)
@@ -217,7 +216,10 @@ onMounted(() => {
       <div v-for="m in visibleMatches" :key="m.id" class="card" data-cy="match-row">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <p class="text-sm text-gray-500">{{ formatDateTime(m.event) }} · Piste {{ m.court_number }}</p>
+            <p class="text-sm text-gray-500">
+              <span data-cy="match-datetime">{{ formatDateTime(m.event) }}</span>
+              · Piste {{ m.court_number }}
+            </p>
             <p class="mt-1 font-semibold">
               <span data-cy="team1-company" v-html="m.team1.company"></span>
               <span class="mx-2 text-gray-400">vs</span>
@@ -226,7 +228,7 @@ onMounted(() => {
             <p class="text-sm text-gray-600">{{ playersOf(m.team1) }} — {{ playersOf(m.team2) }}</p>
           </div>
           <div class="text-right">
-            <span class="badge" :class="statusBadge(m.status).cls">{{ statusBadge(m.status).label }}</span>
+            <span class="badge" :class="statusBadge(m.status).cls" data-cy="status-badge">{{ statusBadge(m.status).label }}</span>
             <p v-if="m.status === 'TERMINE'" class="mt-1 text-sm font-medium">{{ m.score_team1 }}</p>
 
             <!-- Actions admin -->

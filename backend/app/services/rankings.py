@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.models import Match, Player, Team
 
-POINTS_WIN = 3
+POINTS_WIN = 2
 POINTS_LOSS = 0
 
 
@@ -128,9 +128,9 @@ def compute_my_results(db: Session, player: Player) -> dict:
             .filter((Match.team1_id.in_(team_ids)) | (Match.team2_id.in_(team_ids)))
             .all()
         )
-        # Du plus récent au plus ancien.
+        # Tri chronologique des rencontres.
         matches.sort(
-            key=lambda m: (m.event.event_date, m.event.event_time), reverse=True
+            key=lambda m: (m.event.event_date, m.event.event_time)
         )
         for m in matches:
             is_team1 = m.team1_id in team_ids
