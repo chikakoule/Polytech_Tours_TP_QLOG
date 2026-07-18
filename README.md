@@ -40,12 +40,53 @@ Installez ces outils avant de commencer (toutes plateformes) :
 
 ## 🚀 Installation
 
-Clonez le dépôt, puis installez le backend et le frontend (deux terminaux).
+### 0. Récupérer le projet
+
+Deux cas de figure — **choisissez celui qui correspond à votre situation**.
+
+<details open>
+<summary><b>🎓 Cas 1 — Vous suivez le TP (à faire en groupe)</b></summary>
+
+**Commencez par forker le dépôt.** C'est indispensable : sans fork, vous n'avez
+aucun droit d'écriture sur le dépôt d'origine — vous ne pourriez ni pousser vos
+tests, ni faire tourner votre pipeline GitHub Actions, ni rendre votre travail.
+
+1. Sur GitHub, ouvrez https://github.com/AndreyPividori/Polytech_Tours_TP_QLOG
+2. Cliquez sur **Fork** (en haut à droite) pour créer une copie sur **un** compte
+   du groupe.
+3. Sur le dépôt forké, ajoutez les autres membres du groupe :
+   **Settings → Collaborators → Add people**.
+4. Chaque membre clone **le fork**, pas l'original :
 
 ```bash
-git clone <URL_DU_DEPOT>
-cd corpo-padel
+git clone https://github.com/VOTRE-COMPTE/Polytech_Tours_TP_QLOG.git
+cd Polytech_Tours_TP_QLOG
 ```
+
+> 💡 Vérifiez que vous pointez bien sur votre fork : `git remote -v` doit
+> afficher **votre** compte, pas `AndreyPividori`.
+>
+> 📌 C'est l'URL de **votre fork** que vous communiquerez à l'enseignant.
+> L'historique Git fait partie de l'évaluation : committez régulièrement avec
+> des messages clairs.
+</details>
+
+<details>
+<summary><b>🔎 Cas 2 — Vous voulez seulement faire tourner l'application</b></summary>
+
+Pour une simple prise en main (consultation, démonstration), sans rien
+modifier ni publier, un clone direct suffit :
+
+```bash
+git clone https://github.com/AndreyPividori/Polytech_Tours_TP_QLOG.git
+cd Polytech_Tours_TP_QLOG
+```
+
+> ⚠️ Dans ce mode, vous ne pourrez **pas** pousser vos modifications.
+> Si vous suivez le TP, reportez-vous au **Cas 1**.
+</details>
+
+Une fois le projet récupéré, installez le backend et le frontend (deux terminaux).
 
 ### 1. Backend (API FastAPI)
 
@@ -171,7 +212,7 @@ npx cypress run       # mode headless (pour la CI)
 ## 📂 Structure du projet
 
 ```
-corpo-padel/
+Polytech_Tours_TP_QLOG/
 ├── backend/                # API FastAPI
 │   ├── app/
 │   │   ├── routers/        # endpoints (auth, players, teams, pools, events, matches, results, profile, admin)
@@ -204,6 +245,8 @@ corpo-padel/
 
 | Problème | Solution |
 |----------|----------|
+| `git push` refusé : `Permission denied` / `403` | Vous avez cloné le dépôt d'origine au lieu de **votre fork**. Vérifiez avec `git remote -v` : l'URL doit contenir **votre** compte. Sinon, forkez (voir Installation, Cas 1) puis `git remote set-url origin https://github.com/VOTRE-COMPTE/Polytech_Tours_TP_QLOG.git`. |
+| Les GitHub Actions ne se déclenchent pas | Sur un fork, les workflows doivent être activés une fois : onglet **Actions** → « I understand my workflows, go ahead and enable them ». |
 | `pip install` échoue (erreur de compilation, `Rust`, `maturin`, `error: could not build wheels`) | Vous êtes probablement en **Python 3.14**, non supporté. Recréez le venv avec 3.11/3.12/3.13 : `py -3.12 -m venv venv` (Windows) ou `python3.12 -m venv venv`. |
 | `uvicorn: command not found` | L'environnement virtuel n'est pas activé. Réactivez-le (voir Installation). |
 | Port 8000 ou 5173 déjà utilisé | Fermez l'autre processus, ou changez le port (`--port`, `npm run dev -- --port 5174`). |
