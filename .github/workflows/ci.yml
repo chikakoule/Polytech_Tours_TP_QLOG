@@ -12,45 +12,60 @@ jobs:
         working-directory: backend
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - name: Installer les dépendances
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
       - name: Lint (flake8)
         run: flake8 app/
+        # continue-on-error: true
+        # ↑ décommente cette ligne si tu veux que les tests pytest
+        # s'exécutent même si le lint échoue. Sinon, un lint rouge
+        # bloque tout le job (piège n°1 du fichier .example).
+
       - name: Tests pytest + couverture
         run: pytest --cov=app --cov-report=term-missing
+        # Approfondissement (quality gate chiffrée) :
+        # run: pytest --cov=app --cov-fail-under=70
 
   e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+
       - name: Démarrer le backend
         working-directory: backend
         run: |
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
           python seed.py
-          uvicorn app.main:app --port 8000
+          nohup uvicorn app.main:app --port 8000 &
+
       - name: Installer le frontend
         working-directory: frontend
         run: npm ci
+
       - name: Lint (ESLint)
         working-directory: frontend
         run: npm run lint
+
       - name: Tests Cypress (headless)
         working-directory: frontend
         run: |
-          npm run dev > dev.log 2>&1 &
-          npx wait-on --timeout 60000 --method GET http://localhost:5173 http://localhost:8000/api/v1/health
+          npm run dev &
+          npx wait-on http://localhost:5173 http://localhost:8000/api/v1/health
           npx cypress run
-#hs
