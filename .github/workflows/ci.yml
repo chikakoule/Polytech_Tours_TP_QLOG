@@ -1,3 +1,7 @@
+# Objectif : à chaque push et pull request, installer les dépendances, lancer
+# le lint, les tests back-end (pytest) et les tests E2E (Cypress headless),
+# et faire échouer la pipeline si un test échoue (porte de qualité).
+
 name: CI
 
 on:
@@ -22,11 +26,10 @@ jobs:
       - name: Lint (flake8)
         run: flake8 app/
       - name: Tests pytest + couverture
-        run: pytest --cov=app --cov-report=term-missing
+        run: pytest --cov=app --cov-report=term-missing --cov-fail-under=70
 
   e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -41,13 +44,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           python seed.py
-          uvicorn app.main:app --port 8000 > backend.log 2>&1 &
-          sleep 10
-          if ! curl -s http://localhost:8000/api/v1/health; then
-            echo "Le backend a échoué. Logs :"
-            cat backend.log
-            exit 1
-          fi
+          nohup uvicorn app.main:app --port 8000 &
       - name: Installer le frontend
         working-directory: frontend
         run: npm ci
@@ -57,7 +54,12 @@ jobs:
       - name: Tests Cypress (headless)
         working-directory: frontend
         run: |
-          npm run dev > dev.log 2>&1 &
-          npx wait-on --timeout 60000 --method GET http://localhost:5173 http://localhost:8000/api/v1/health
+          npm run dev &
+          npx wait-on http://localhost:5173
           npx cypress run
-#h
+
+# # Pistes d'approfondissement (4A attendu / 5A bonus) :
+# #   - quality gate chiffré (couverture minimale)
+# #   - badge de build dans le README
+# #   - branches protégées (PR validée par la CI avant merge sur main)
+# #   - déploiement continu du frontend sur merge vers main
