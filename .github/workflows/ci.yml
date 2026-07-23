@@ -51,5 +51,5 @@ jobs:
         working-directory: frontend
         run: |
           npm run dev > dev.log 2>&1 &
-          npx wait-on --timeout 30000 --verbose http://localhost:5173 http://localhost:8000/api/v1/health
+          npx wait-on --timeout 60000 --method GET http://localhost:5173 http://localhost:8000/api/v1/health
           npx cypress run
