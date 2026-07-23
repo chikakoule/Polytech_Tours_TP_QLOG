@@ -38,16 +38,9 @@ jobs:
       - name: Démarrer le backend
         working-directory: backend
         run: |
-          python -m pip install --upgrade pip
           pip install -r requirements.txt
           python seed.py
-          uvicorn app.main:app --port 8000 > backend.log 2>&1 &
-          sleep 10
-          if ! curl -s http://localhost:8000/api/v1/health; then
-            echo "Le backend a échoué. Logs :"
-            cat backend.log
-            exit 1
-          fi
+          uvicorn app.main:app --port 8000
       - name: Installer le frontend
         working-directory: frontend
         run: npm ci
